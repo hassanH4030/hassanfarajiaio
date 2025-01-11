@@ -92,42 +92,18 @@
             margin-top: 5px;
         }
 
-        .response-buttons {
-            display: flex;
-            justify-content: flex-start; /* دکمه‌ها به سمت چپ قرار می‌گیرند */
-            margin-top: 10px;
-            width: 100%;
-        }
-
-        .response-buttons button {
-            background-color: white;
-            border: 1px solid #ccc;
-            padding: 3px 6px; /* کاهش فضای داخلی دکمه‌ها */
-            cursor: pointer;
-            font-size: 10px; /* اندازه فونت کوچکتر */
-            margin-right: 10px; /* فاصله بین دکمه‌ها */
-        }
-
-        .response-buttons button:hover {
-            background-color: #f1f1f1;
-        }
-
         .user-message {
-            color: #e91e63; /* رنگ صورتی برای سوال */
+            color: #e91e63;
             font-weight: bold;
-            margin-bottom: 10px; /* فاصله بین سوالات */
-            margin-top: 10px; /* اضافه کردن فاصله در بالا */
+            margin-bottom: 10px;
+            margin-top: 10px;
         }
 
         .bot-message {
-            color: #1565c0; /* رنگ آبی پررنگ برای پاسخ ربات */
+            color: #1565c0;
             font-weight: bold;
-            margin-bottom: 10px; /* فاصله بین پاسخ‌ها */
-            margin-top: 10px; /* فاصله کوچک قبل از پاسخ ربات */
-        }
-
-        .question-text {
-            margin-bottom: 10px; /* فاصله بیشتر بین سوال و پاسخ */
+            margin-bottom: 10px;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -145,7 +121,6 @@
 
     <script>
         const emojisQuestion = ["🎓", "📘", "📚", "📝", "📖"];
-        const emojisResponse = ["✅", "🎯", "📅", "🧠", "💡"];
 
         function convertToPersianNumbers(text) {
             const persianNumbers = {
@@ -165,62 +140,41 @@
                 chatBox.scrollTop = chatBox.scrollHeight;
                 if (index === response.length) {
                     clearInterval(interval);
-                    addResponseButtons(chatBox);
                 }
             }, 50);
-        }
-
-        function addResponseButtons(chatBox) {
-            const buttons = document.createElement("div");
-            buttons.classList.add("response-buttons");
-            buttons.innerHTML = `
-                <button onclick="likeAction()">👍</button>
-                <button onclick="dislikeAction()">👎</button>
-                <button onclick="copyAction()">📋</button>
-            `;
-            chatBox.appendChild(buttons);
-        }
-
-        function likeAction() {
-            alert("شما لایک کردید!");
-        }
-
-        function dislikeAction() {
-            alert("شما دیسلایک کردید!");
-        }
-
-        function copyAction() {
-            const text = document.getElementById("chatBox").innerText;
-            navigator.clipboard.writeText(text).then(() => {
-                const confirmationLabel = document.getElementById("confirmationLabel");
-                confirmationLabel.innerText = "کپی شد";
-                confirmationLabel.style.display = "block";
-                setTimeout(() => {
-                    confirmationLabel.style.display = "none";
-                }, 2000);
-            });
         }
 
         document.getElementById("sendButton").addEventListener("click", () => {
             const inputBox = document.getElementById("inputBox");
             const chatBox = document.getElementById("chatBox");
             const message = inputBox.value.trim();
+
             if (message !== "") {
                 const emoji = emojisQuestion[Math.floor(Math.random() * emojisQuestion.length)];
-                chatBox.innerHTML += `<div class="user-message question-text">درخواست شما: ${message} ${emoji}</div>`;
+                chatBox.innerHTML += `<div class="user-message">درخواست شما: ${message} ${emoji}</div>`;
                 inputBox.value = "";
                 chatBox.scrollTop = chatBox.scrollHeight;
 
-                fetch(`http://5.161.91.18/chat?text=${encodeURIComponent(message)}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        const botResponse = convertToPersianNumbers(data);
-                        typingEffect(botResponse, chatBox);
-                    })
-                    .catch(error => {
-                        const botResponse = "خطا: " + error;
-                        typingEffect(botResponse, chatBox);
-                    });
+                fetch(`http://5.161.91.18/chat?text=${encodeURIComponent(message)}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`خطای سرور: وضعیت ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const botResponse = convertToPersianNumbers(data.response || "پاسخی دریافت نشد.");
+                    typingEffect(botResponse, chatBox);
+                })
+                .catch(error => {
+                    const botResponse = "خطا در ارتباط با سرور: " + error.message;
+                    typingEffect(botResponse, chatBox);
+                });
             }
         });
     </script>
