@@ -155,26 +155,24 @@
                 inputBox.value = "";
                 chatBox.scrollTop = chatBox.scrollHeight;
 
-                fetch(`https://5.161.91.18/chat?text=${encodeURIComponent(message)}`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`خطای سرور: وضعیت ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    const botResponse = convertToPersianNumbers(data.response || "پاسخی دریافت نشد.");
-                    typingEffect(botResponse, chatBox);
-                })
-                .catch(error => {
-                    const botResponse = "خطا در ارتباط با سرور: " + error.message;
-                    typingEffect(botResponse, chatBox);
-                });
+                // تغییر URL به HTTP
+                const apiUrl = `http://5.161.91.18/chat?text=${encodeURIComponent(message)}`;
+                
+                fetch(apiUrl)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`خطای سرور: وضعیت ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        const botResponse = convertToPersianNumbers(data.response || "پاسخی دریافت نشد.");
+                        typingEffect(botResponse, chatBox);
+                    })
+                    .catch(error => {
+                        const botResponse = "خطا در ارتباط با سرور: " + error.message;
+                        typingEffect(botResponse, chatBox);
+                    });
             }
         });
     </script>
