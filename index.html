@@ -84,14 +84,6 @@
             background-color: #1d3557;
         }
 
-        .confirmation-label {
-            font-size: 10px;
-            color: green;
-            font-weight: bold;
-            display: none;
-            margin-top: 5px;
-        }
-
         .user-message {
             color: #e91e63;
             font-weight: bold;
@@ -116,21 +108,16 @@
         </div>
         <textarea id="inputBox" class="input-box" placeholder="...لطفا درخواست خود در زمینه مشاور تحصیلی رو وارد کنید."></textarea>
         <button id="sendButton" class="send-button">ارسال</button>
-        <div id="confirmationLabel" class="confirmation-label"></div>
     </div>
 
     <script>
         const emojisQuestion = ["🎓", "📘", "📚", "📝", "📖"];
-
-        function convertToPersianNumbers(text) {
-            const persianNumbers = {
-                "0": "۰", "1": "۱", "2": "۲", "3": "۳", "4": "۴", "5": "۵", "6": "۶", "7": "۷", "8": "۸", "9": "۹"
-            };
-            for (const [english, persian] of Object.entries(persianNumbers)) {
-                text = text.replace(new RegExp(english, 'g'), persian);
-            }
-            return text;
-        }
+        const sampleResponses = [
+            "پاسخ شما آماده است: لطفاً بیشتر توضیح دهید.",
+            "مشاور آیو می‌گوید: از تلاش شما سپاسگزاریم!",
+            "پیشنهاد ما این است که منابع بیشتری مطالعه کنید.",
+            "درخواست شما دریافت شد و در حال بررسی است."
+        ];
 
         function typingEffect(response, chatBox) {
             let index = 0;
@@ -155,24 +142,11 @@
                 inputBox.value = "";
                 chatBox.scrollTop = chatBox.scrollHeight;
 
-                // تغییر URL به HTTP
-                const apiUrl = `http://5.161.91.18/chat?text=${encodeURIComponent(message)}`;
-                
-                fetch(apiUrl)
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error(`خطای سرور: وضعیت ${response.status}`);
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        const botResponse = convertToPersianNumbers(data.response || "پاسخی دریافت نشد.");
-                        typingEffect(botResponse, chatBox);
-                    })
-                    .catch(error => {
-                        const botResponse = "خطا در ارتباط با سرور: " + error.message;
-                        typingEffect(botResponse, chatBox);
-                    });
+                // پاسخ شبیه‌سازی‌شده
+                const randomResponse = sampleResponses[Math.floor(Math.random() * sampleResponses.length)];
+                setTimeout(() => {
+                    typingEffect(randomResponse, chatBox);
+                }, 1000);
             }
         });
     </script>
